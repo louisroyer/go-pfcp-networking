@@ -284,6 +284,30 @@ func (s *PFCPSession) Setup() error {
 		if err != nil {
 			return err
 		}
+
+		// update PDRs
+		updatepdrs, err, cause, offendingie := NewPDRMap(ser.UpdatePDR)
+		if err != nil {
+			_ = cause
+			_ = offendingie
+			//			res := message.NewSessionEstablishmentResponse(0, 0, rseid, msg.Sequence(), 0, msg.Entity.NodeID(), ie.NewCause(cause), ie.NewOffendingIE(offendingie))
+			//			return msg.ReplyTo(res)
+		}
+
+		// update FARs
+		updatefars, err, cause, offendingie := NewFARMap(ser.UpdateFAR)
+		if err != nil {
+			//			res := message.NewSessionEstablishmentResponse(0, 0, rseid, msg.Sequence(), 0, msg.Entity.NodeID(), ie.NewCause(cause), ie.NewOffendingIE(offendingie))
+			//			return msg.ReplyTo(res)
+		}
+
+		err = session.AddUpdatePDRsFARs(nil, nil, updatepdrs, updatefars)
+		if err != nil {
+			//XXX, offending IE
+			//			res := message.NewSessionModificationResponse(0, 0, rseid, msg.Sequence(), 0, ie.NewCause(ie.CauseRequestRejected))
+			//			return msg.ReplyTo(res)
+		}
+
 		s.remoteFseid = ie.NewFSEID(remoteFseidFields.SEID, remoteFseidFields.IPv4Address, remoteFseidFields.IPv6Address)
 		s.isEstablished = true
 		return nil
